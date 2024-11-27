@@ -1,0 +1,28 @@
+name: Facebook Stream
+
+on:
+  push:
+    branches:
+      - main  # يمكنك تغيير هذا إلى الفرع الذي تعمل عليه
+
+jobs:
+  stream-to-facebook:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v3
+
+    - name: Set up FFmpeg
+      run: |
+        sudo apt update
+        sudo apt install ffmpeg
+
+    - name: Run stream to Facebook
+      env:
+        M3U8_URL: "https://live4.beinconnect.us/YallaGoalApp/beINSports3.m3u8"
+        STREAM_KEY: "FB-558854963552697-0-AbzubMxYsiWw1H51"
+      run: |
+        ffmpeg -re -i "$M3U8_URL" \
+        -c:v libx264 -preset veryfast -maxrate 5000k -bufsize 10000k \
+        -c:a aac -b:a 192k -f flv "rtmps://live-api-s.facebook.com:443/rtmp/$STREAM_KEY"
